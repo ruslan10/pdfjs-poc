@@ -26,12 +26,10 @@ export class AppComponent implements OnInit {
   pdfjs;
   zoomScale = 1;
 
-  constructor(
-    private cd: ChangeDetectorRef,
-    private renderer: Renderer2,
-  ) {
+  constructor(private cd: ChangeDetectorRef, private renderer: Renderer2) {
     this.pdfjs = pdfjs;
-    this.pdfjs.GlobalWorkerOptions.workerSrc = `./workers/pdf.worker.js?v${Date.now()}`;
+
+    this.pdfjs.GlobalWorkerOptions.workerSrc = `../../node_modules/pdfjs-dist/build/pdf.worker.js${Date.now()}`;
   }
 
   ngAfterViewInit() {
