@@ -1,0 +1,52 @@
+.viewerContainer {
+  overflow: scroll;
+  // margin: 50px;
+  height: 87vh;
+  width: 95vw;
+  background-color: blueviolet;
+  display: flex;
+  justify-content: center;
+  // align-items: center;
+}
+
+.canvas-wrapper {
+  // background-color: rgb(171, 57, 57);
+  // position: absolute;
+  border: 2px solid black;
+  // transform-origin: top left;
+  // touch-action: pan-x pan-y pinch-zoom;
+  // overflow: scroll;
+  transform-origin: top;
+  cursor: grab;
+
+  canvas {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}
+.loading-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-weight: bold;
+  font-size: 24px;
+}
+a {
+  font-size: 24px;
+}
+.dot {
+  background-color: red;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+#touchArea {
+  background-color: black;
+  height: 400px;
+}
