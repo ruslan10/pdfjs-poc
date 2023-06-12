@@ -8,7 +8,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf';
-import { finalize, from, Subscription } from 'rxjs';
+import { PDFPageProxy, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf';
+import { finalize, forkJoin, from, Observable, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'my-app',
@@ -25,22 +26,25 @@ export class AppComponent implements OnInit {
   subscriptions: Subscription = new Subscription();
   pdfjs;
   zoomScale = 1;
+  error: any;
+
+
+  pdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
+    
 
   constructor(private cd: ChangeDetectorRef, private renderer: Renderer2) {
-    this.pdfjs = pdfjs;
-
-    // this.pdfjs.GlobalWorkerOptions.workerSrc = `node_modules/pdfjs-dist/build/pdf.worker.js${Date.now()}`;
-
-    //https://www.jsdelivr.com/package/npm/pdfjs-dist
-    this.pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
+    this.pdfjs = pdfjs;    
   }
 
   ngAfterViewInit() {
     const el = this.viewerContainer?.nativeElement;
     const canvasWrap = this.canvasWrapper?.nativeElement;
   }
+
   ngOnInit(): void {
-    this.loadPdf('assets/file-example_PDF_500_kB.pdf');
+    this.pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
+
+    this.loadPdf(this.pdfUrl);
   }
 
   createCanvas() {
