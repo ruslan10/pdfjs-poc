@@ -29,7 +29,10 @@ export class AppComponent implements OnInit {
   constructor(private cd: ChangeDetectorRef, private renderer: Renderer2) {
     this.pdfjs = pdfjs;
 
-    this.pdfjs.GlobalWorkerOptions.workerSrc = `node_modules/pdfjs-dist/build/pdf.worker.js${Date.now()}`;
+    // this.pdfjs.GlobalWorkerOptions.workerSrc = `node_modules/pdfjs-dist/build/pdf.worker.js${Date.now()}`;
+
+    //https://www.jsdelivr.com/package/npm/pdfjs-dist
+    this.pdfjs.GlobalWorkerOptions.workerSrc = 'https://www.jsdelivr.com/package/npm/pdfjs-dist/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
   }
 
   ngAfterViewInit() {
