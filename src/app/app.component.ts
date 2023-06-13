@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    let pz = new PinchZoom(this.canvasContent?.nativeElement);
+    // let pz = new PinchZoom(this.canvasContent?.nativeElement);
     // this.zoomService.init(this.canvasContent?.nativeElement, this.canvasWrapper?.nativeElement);
   }
   
@@ -83,6 +83,9 @@ export class AppComponent implements OnInit {
                   canvas.width = viewport.width;
 
                   page.render({ canvasContext: context, viewport });
+
+                  new PinchZoom(canvas);
+                  
                   numPagesLoaded++;
 
                   if (numPagesLoaded === totalPages) {
