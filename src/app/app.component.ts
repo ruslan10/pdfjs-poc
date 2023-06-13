@@ -10,6 +10,7 @@ import {
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf';
 import { PDFPageProxy, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf';
 import { finalize, forkJoin, from, Observable, Subscription, switchMap } from 'rxjs';
+import { ZoomService } from './zoom.service';
 
 @Component({
   selector: 'my-app',
@@ -19,7 +20,7 @@ import { finalize, forkJoin, from, Observable, Subscription, switchMap } from 'r
 })
 export class AppComponent implements OnInit {
   @ViewChild('canvasWrapper') private canvasWrapper: ElementRef | undefined;
-  @ViewChild('viewerContainer') private viewerContainer: ElementRef | undefined;
+  @ViewChild('canvasContent') private canvasContent: ElementRef | undefined;
   @ViewChild('touchArea') private touchArea: ElementRef | undefined;
   title = 'pdf-viewer';
   loading = false;
@@ -32,14 +33,14 @@ export class AppComponent implements OnInit {
   pdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
     
 
-  constructor(private cd: ChangeDetectorRef, private renderer: Renderer2) {
+  constructor(private cd: ChangeDetectorRef, private renderer: Renderer2, private zoomService: ZoomService) {
     this.pdfjs = pdfjs;    
   }
 
   ngAfterViewInit() {
-    const el = this.viewerContainer?.nativeElement;
-    const canvasWrap = this.canvasWrapper?.nativeElement;
+    this.zoomService.init(this.canvasContent?.nativeElement, this.canvasWrapper?.nativeElement);
   }
+  
 
   ngOnInit(): void {
     this.pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
