@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf';
 import { PDFPageProxy, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf';
+import PinchZoom from 'pinch-zoom-js';
 import { finalize, forkJoin, from, Observable, Subscription, switchMap } from 'rxjs';
 import { ZoomService } from './zoom.service';
 
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.zoomService.init(this.canvasContent?.nativeElement, this.canvasWrapper?.nativeElement);
+    let pz = new PinchZoom(this.canvasContent?.nativeElement);
+    // this.zoomService.init(this.canvasContent?.nativeElement, this.canvasWrapper?.nativeElement);
   }
   
 
