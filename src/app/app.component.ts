@@ -10,7 +10,14 @@ import {
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf';
 import { PDFPageProxy, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf';
 import PinchZoom from 'pinch-zoom-js';
-import { finalize, forkJoin, from, Observable, Subscription, switchMap } from 'rxjs';
+import {
+  finalize,
+  forkJoin,
+  from,
+  Observable,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 import { ZoomService } from './zoom.service';
 
 @Component({
@@ -30,22 +37,29 @@ export class AppComponent implements OnInit {
   zoomScale = 1;
   error: any;
 
+  pdfUrl =
+    'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
 
-  pdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
-    
-
-  constructor(private cd: ChangeDetectorRef, private renderer: Renderer2, private zoomService: ZoomService) {
-    this.pdfjs = pdfjs;    
+  constructor(
+    private cd: ChangeDetectorRef,
+    private renderer: Renderer2,
+    private zoomService: ZoomService
+  ) {
+    this.pdfjs = pdfjs;
   }
 
   ngAfterViewInit() {
     // let pz = new PinchZoom(this.canvasContent?.nativeElement);
-    // this.zoomService.init(this.canvasContent?.nativeElement, this.canvasWrapper?.nativeElement);
+    this.zoomService.init(
+      this.canvasContent?.nativeElement,
+      this.canvasWrapper?.nativeElement
+    );
+    
   }
-  
 
   ngOnInit(): void {
-    this.pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
+    this.pdfjs.GlobalWorkerOptions.workerSrc =
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
 
     this.loadPdf(this.pdfUrl);
   }
@@ -84,13 +98,15 @@ export class AppComponent implements OnInit {
 
                   page.render({ canvasContext: context, viewport });
 
-                  new PinchZoom(canvas);
-                  
+                  // new PinchZoom(canvas);
+
                   numPagesLoaded++;
 
                   if (numPagesLoaded === totalPages) {
                     this.loading = false;
                     this.cd.detectChanges();
+
+                    //new PinchZoom(this.canvasWrapper?.nativeElement);
                   }
                 },
                 error: (error) => {
