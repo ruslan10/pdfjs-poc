@@ -20,22 +20,6 @@ export class ZoomService {
 
     this.addTouchListeners();
     this.addMouseListeners();
-
-    this.zoomContainerEl.addEventListener('touchstart', (e: TouchEvent) => {
-      this.handleTouchStart(e);
-      this.handleDragStart(e);
-    });
-    this.zoomContainerEl.addEventListener('touchmove', (e: TouchEvent) => {
-      this.handleTouchMove(e);
-      this.handleDragMove(e);
-    });
-    this.zoomContainerEl.addEventListener('touchend', (e: TouchEvent) => {
-      this.handleTouchEnd(e);
-      this.handleDragEnd(e);
-    });
-
-    this.zoomContainerEl.addEventListener('touchmove', this.handleDragMove);
-    this.zoomContainerEl.addEventListener('touchend', this.handleDragEnd);
   }
 
   private addTouchListeners() {
@@ -46,7 +30,7 @@ export class ZoomService {
     this.zoomContainerEl.addEventListener('touchmove', (e: TouchEvent) => {
       this.handleTouchMove(e);
       this.handleDragMove(e);
-    });
+    },{ passive: false });
     this.zoomContainerEl.addEventListener('touchend', (e: TouchEvent) => {
       this.handleTouchEnd(e);
       this.handleDragEnd(e);
