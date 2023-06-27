@@ -1,24 +1,22 @@
 .canvas-content {
+  --scale-factor: 1;
   overflow: scroll;
-  // margin: 50px;
-  height: 87vh;
-  width: 95vw;
+  height: 100%;
+  width: 100%;
   background-color: blueviolet;
   display: flex;
   justify-content: center;
-  // align-items: center;
 }
 
 .canvas-wrapper {
-  width: 100%;
+  max-width: 100vw;
   height: 95vh;
-  border: 2px solid black;
-  transform-origin: top;
   cursor: grab;
-
   canvas {
+    box-sizing: border-box;
     width: 100%;
     margin-bottom: 5px;
+    border: 5px solid #000;
   }
 }
 
@@ -32,9 +30,11 @@
   font-weight: bold;
   font-size: 24px;
 }
+
 a {
   font-size: 24px;
 }
+
 .dot {
   background-color: red;
   width: 4rem;

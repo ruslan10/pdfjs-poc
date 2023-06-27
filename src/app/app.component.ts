@@ -2,23 +2,16 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  NgZone,
   OnInit,
   Renderer2,
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf';
-import { PDFPageProxy, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf';
-import PinchZoom from 'pinch-zoom-js';
-import {
-  finalize,
-  forkJoin,
-  from,
-  Observable,
-  Subscription,
-  switchMap,
-} from 'rxjs';
-import { ZoomService } from './zoom.service';
+import {from, Subscription,} from 'rxjs';
+import {ZoomService} from './zoom.service';
+
 
 @Component({
   selector: 'my-app',
@@ -37,10 +30,10 @@ export class AppComponent implements OnInit {
   zoomScale = 1;
   error: any;
 
-  pdfUrl =
-    'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
+  pdfUrl = 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf';
 
   constructor(
+    private ngZone: NgZone,
     private cd: ChangeDetectorRef,
     private renderer: Renderer2,
     private zoomService: ZoomService
@@ -48,18 +41,10 @@ export class AppComponent implements OnInit {
     this.pdfjs = pdfjs;
   }
 
-  ngAfterViewInit() {
-    // let pz = new PinchZoom(this.canvasContent?.nativeElement);
-    this.zoomService.init(
-      this.canvasContent?.nativeElement,
-      this.canvasWrapper?.nativeElement
-    );
-    
-  }
-
   ngOnInit(): void {
     this.pdfjs.GlobalWorkerOptions.workerSrc =
       'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.worker.js';
+
 
     this.loadPdf(this.pdfUrl);
   }
@@ -72,56 +57,53 @@ export class AppComponent implements OnInit {
 
   loadPdf(url: string) {
     this.loading = true;
-    const loadingTask = this.pdfjs.getDocument(url);
-    const pdfLoad = from(loadingTask.promise);
+    this.ngZone.runOutsideAngular(() => {
+      const loadingTask = this.pdfjs.getDocument(url);
+      const pdfLoad = from(loadingTask.promise);
 
-    let numPagesLoaded = 0;
-    let totalPages = 0;
-    const subscriptions = new Subscription();
+      let numPagesLoaded = 0;
+      let totalPages = 0;
+      const subscriptions = new Subscription();
 
-    subscriptions.add(
-      pdfLoad.subscribe({
-        next: (pdf) => {
-          totalPages = pdf.numPages;
+      subscriptions.add(
+        pdfLoad.subscribe({
+          next: (pdf) => {
+            totalPages = pdf.numPages;
 
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const pageLoad = from(pdf.getPage(i));
-            subscriptions.add(
-              pageLoad.subscribe({
-                next: (page) => {
-                  const viewport = page.getViewport({ scale: 3 });
-                  const canvas = this.createCanvas();
-                  const context = canvas.getContext('2d');
+            for (let i = 1; i <= pdf.numPages; i++) {
+              pdf.getPage(i).then((page) => {
+                const viewport = page.getViewport({scale: 1.5});
+                const canvas = this.createCanvas();
+                const context = canvas.getContext('2d');
 
-                  canvas.height = viewport.height;
-                  canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.style.width = `calc(var(--scale-factor) * ${canvas.offsetWidth}px)`;
+                canvas.style.height = `calc(var(--scale-factor) * ${canvas.offsetHeight}px)`;
 
-                  page.render({ canvasContext: context, viewport });
+                page.render({canvasContext: context, viewport});
 
-                  // new PinchZoom(canvas);
+                numPagesLoaded++;
 
-                  numPagesLoaded++;
+                if (numPagesLoaded === totalPages) {
+                  this.loading = false;
+                  this.cd.detectChanges();
 
-                  if (numPagesLoaded === totalPages) {
-                    this.loading = false;
-                    this.cd.detectChanges();
+                  this.zoomService.init(
+                    this.canvasContent?.nativeElement,
+                    this.canvasWrapper?.nativeElement
+                  );
+                }
+              });
+            }
+          },
+          error: (error) => {
+            console.error(error);
+          },
+        })
+      );
 
-                    //new PinchZoom(this.canvasWrapper?.nativeElement);
-                  }
-                },
-                error: (error) => {
-                  console.error(error);
-                },
-              })
-            );
-          }
-        },
-        error: (error) => {
-          console.error(error);
-        },
-      })
-    );
-
-    this.subscriptions.add(subscriptions);
+      this.subscriptions.add(subscriptions);
+    });
   }
 }

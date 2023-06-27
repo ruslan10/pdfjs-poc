@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+
 
 @Injectable({
   providedIn: 'root',
@@ -7,12 +8,16 @@ export class ZoomService {
   private zoomContainerEl!: HTMLElement;
   private zoomContentEl!: HTMLElement;
 
+
   private initialDistance!: number;
   private zoomScale = 1;
+  private scaleValue = 1;
+
 
   private isDragging = false;
-  private lastPosition = { x: 0, y: 0 };
-  private scrollPosition = { x: 0, y: 0 };
+  private lastPosition = {x: 0, y: 0};
+  private scrollPosition = {x: 0, y: 0};
+
 
   init(zoomContainer: HTMLElement, zoomContent: HTMLElement) {
     this.zoomContainerEl = zoomContainer;
@@ -22,6 +27,7 @@ export class ZoomService {
     this.addMouseListeners();
   }
 
+
   private addTouchListeners() {
     this.zoomContainerEl.addEventListener('touchstart', (e: TouchEvent) => {
       this.handleTouchStart(e);
@@ -30,7 +36,7 @@ export class ZoomService {
     this.zoomContainerEl.addEventListener('touchmove', (e: TouchEvent) => {
       this.handleTouchMove(e);
       this.handleDragMove(e);
-    },{ passive: false });
+    });
     this.zoomContainerEl.addEventListener('touchend', (e: TouchEvent) => {
       this.handleTouchEnd(e);
       this.handleDragEnd(e);
@@ -50,6 +56,7 @@ export class ZoomService {
   }
 
   private handleTouchStart(e: TouchEvent) {
+    console.log('handleTouchStart', e.touches.length);
     if (e.touches.length === 2) {
       e.preventDefault();
       this.initialDistance = Math.hypot(
@@ -68,26 +75,25 @@ export class ZoomService {
         e.touches[0].pageY - e.touches[1].pageY
       );
 
-      const scaleValue = (newDistance / this.initialDistance) * this.zoomScale;
+      this.scaleValue = Math.max(
+        (newDistance / this.initialDistance) * this.zoomScale,
+        1
+      );
 
       if (newDistance !== this.initialDistance) {
         // prevent desktop animation on mobile
         this.zoomContentEl.style.transition = 'none';
-        // prevent negative zoom out
-        if (scaleValue >= 1) {
-          const transform = `scale(${scaleValue})`;
-          this.zoomContentEl.style.transform = transform;
-          this.zoomContentEl.style.webkitTransform = transform;
-          this.zoomContentEl.style.transformOrigin = 'top';
-        }
+        this.zoomContainerEl.style.setProperty(
+          '--scale-factor',
+          '' + this.scaleValue
+        );
       }
     }
   }
 
   private handleTouchEnd(e: TouchEvent) {
     this.initialDistance = 0;
-    // preserve current scale
-    this.zoomScale = parseFloat(this.zoomContentEl.style.transform.slice(6));
+    this.zoomScale = this.scaleValue;
   }
 
   private handleDragStart(e: MouseEvent | TouchEvent) {
@@ -107,17 +113,16 @@ export class ZoomService {
       y: currentPosition.y - this.lastPosition.y,
     };
     this.lastPosition = currentPosition;
-
     this.scrollPosition.x -= delta.x;
     this.scrollPosition.y -= delta.y;
 
     if ('touches' in e) {
-      this.zoomContainerEl.scrollLeft = this.scrollPosition.x;
-      this.zoomContainerEl.scrollTop = this.scrollPosition.y;
+      this.zoomContainerEl.scrollLeft = this.scrollPosition.x * this.scaleValue;
+      this.zoomContainerEl.scrollTop = this.scrollPosition.y * this.scaleValue;
     } else {
       const container = this.zoomContainerEl;
-      container.scrollLeft -= delta.x;
-      container.scrollTop -= delta.y;
+      container.scrollLeft -= delta.x * this.scaleValue;
+      container.scrollTop -= delta.y * this.scaleValue;
     }
   }
 
